@@ -63,22 +63,55 @@ Svarīgi: es nevaru palīdzēt veidot platformu, kas paredzēta, lai uzbruktu va
       <pre id="mdPreview" style="white-space:pre-wrap;"></pre>
       <button id="copyBtn" style="background:#000;color:#0f0;border:1px solid #0f0;padding:5px 10px;margin-top:10px;">COPY</button>
     </div>
+      <div id="messageBoard" style="margin-top:25px;"></div>
   </main>
 
   <script>
-    function escapeHtml(s){return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
+    // --- Simple BBS storage (local only, cannot edit old posts) ---
+    let messages = JSON.parse(localStorage.getItem('bbs_messages') || '[]');
 
+    function escapeHtml(s){
+      return s.replaceAll('&','&amp;')
+              .replaceAll('<','&lt;')
+              .replaceAll('>','&gt;');
+    }
+
+    // Handle new post
     function handleSubmit(e){
       e.preventDefault();
       const content = document.getElementById('content').value.trim();
-      let md = escapeHtml(content);
-      document.getElementById('mdPreview').textContent = md;
-      document.getElementById('previewArea').style.display = 'block';
-      document.getElementById('copyBtn').onclick = ()=>{
-        navigator.clipboard.writeText(md);
-      }
+      if (!content) return false;
+
+      const safe = escapeHtml(content);
+      const timestamp = new Date().toLocaleString();
+
+      // Store message permanently (non‑editable)
+      messages.push({ text: safe, time: timestamp });
+
+      // Refresh board display
+      renderBoard();
+      localStorage.setItem('bbs_messages', JSON.stringify(messages));
+
+      // Clear textarea
+      document.getElementById('content').value = "";
+
       return false;
+    }
+
+    function renderBoard(){(){
+      const board = document.getElementById('messageBoard');
+      board.innerHTML = "";
+
+      messages.forEach((msg, i) => {
+        const block = document.createElement('div');
+        block.style.border = '1px solid #0f0';
+        block.style.padding = '10px';
+        block.style.marginTop = '10px';
+        block.innerHTML = `<div>[MSG #${i+1}] — ${msg.time}</div><pre style="white-space:pre-wrap;">${msg.text}</pre>`;
+        board.appendChild(block);
+      });
     }
   </script>
 </body>
 </html>
+

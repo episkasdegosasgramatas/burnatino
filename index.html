@@ -51,47 +51,50 @@ footer{margin:30px 0 80px;color:#666;font-size:14px}
 <div id="messageBoard" style="margin-top:25px;"></div>
 </main>
 
-
 <script>
-// --- Simple BBS storage (local only, cannot edit old posts) ---
 let messages = JSON.parse(localStorage.getItem('bbs_messages') || '[]');
 
-
 function escapeHtml(s){
-return s.replaceAll('&','&amp;')
-.replaceAll('<','&lt;')
-.replaceAll('>','&gt;');
+    return s.replaceAll('&','&amp;')
+            .replaceAll('<','&lt;')
+            .replaceAll('>','&gt;');
 }
 
-
-// Handle new post
 function handleSubmit(e){
-e.preventDefault();
-const content = document.getElementById('content').value.trim();
-if (!content) return false;
+    e.preventDefault();
+    const content = document.getElementById('content').value.trim();
+    if (!content) return false;
 
+    const safe = escapeHtml(content);
+    const timestamp = new Date().toLocaleString();
 
-const safe = escapeHtml(content);
-const timestamp = new Date().toLocaleString();
+    messages.push({ text: safe, time: timestamp });
 
+    localStorage.setItem('bbs_messages', JSON.stringify(messages));
+    renderBoard();
 
-// Store message permanently (non‑editable)
-messages.push({ text: safe, time: timestamp });
-
-
-// Refresh board display
-renderBoard();
-localStorage.setItem('bbs_messages', JSON.stringify(messages));
-
-
-// Clear textarea
-document.getElementById('content').value = "";
-
-
-return false;
+    document.getElementById('content').value = "";
+    return false;
 }
 
+function renderBoard() {
+    const board = document.getElementById('messageBoard');
 
-function renderBoard(){(){
-const board = document.getElementById('messageBoard');
+    if (messages.length === 0) {
+        board.innerHTML = "<p style='color:#0f0'>Nav nevienas ziņas...</p>";
+        return;
+    }
+
+    board.innerHTML = messages
+        .map(msg => `
+            <div style="border:1px solid #0f0;padding:10px;margin-bottom:10px;">
+                <div style="white-space:pre-wrap;color:#0f0;">${msg.text}</div>
+                <div style="color:#090;font-size:12px;margin-top:5px;">${msg.time}</div>
+            </div>
+        `)
+        .join('');
+}
+
+renderBoard();
+</script>
 

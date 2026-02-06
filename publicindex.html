@@ -1,0 +1,47 @@
+<script>
+const API_URL = "https://burnatino.onrender.com/"; // <-- nomainīsi pēc deploy
+
+function escapeHtml(s){
+    return s.replaceAll('&','&amp;')
+            .replaceAll('<','&lt;')
+            .replaceAll('>','&gt;');
+}
+
+async function loadMessages() {
+    const res = await fetch(`${API_URL}/api/messages`);
+    const messages = await res.json();
+
+    const board = document.getElementById("messageBoard");
+
+    if (messages.length === 0) {
+        board.innerHTML = "<p style='color:#0f0'>Nav ziņu...</p>";
+        return;
+    }
+
+    board.innerHTML = messages.map(msg => `
+        <div style="border:1px solid #0f0;padding:10px;margin-bottom:10px;">
+            <div style="white-space:pre-wrap;color:#0f0;">${msg.text}</div>
+            <div style="color:#090;font-size:12px;margin-top:5px;">${msg.time}</div>
+        </div>
+    `).join('');
+}
+
+document.getElementById("postForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const content = document.getElementById("content").value.trim();
+    if (!content) return;
+
+    const safe = escapeHtml(content);
+
+    await fetch(`${API_URL}/api/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: safe })
+    });
+
+    document.getElementById("content").value = "";
+    loadMessages();
+});
+
+loadMessages();
+</script>

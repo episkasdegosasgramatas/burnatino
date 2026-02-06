@@ -70,8 +70,8 @@ function renderBoard() {
     board.innerHTML = messages
         .map(msg => `
             <div style="border:1px solid black;padding:10px;margin-bottom:10px;">
-                <div style="white-space:pre-wrap;color:0f0;">${msg.text}</div>
-                <div style="color:0f0;font-size:12px;margin-top:5px;">${msg.time}</div>
+                <div style="white-space:pre-wrap;color:#0f0;">${msg.text}</div>
+                <div style="color:#0f0;font-size:12px;margin-top:5px;">${msg.time}</div>
             </div>
         `)
         .join('');
@@ -79,6 +79,7 @@ function renderBoard() {
 
 renderBoard();
 </script>
+
 
 
 

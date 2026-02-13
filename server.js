@@ -29,4 +29,4 @@ app.post("/api/messages", (req, res) => {
 });
 
 // Server start
-app.listen(3000, () => console.log("BBS server running on http://localhost:3000"));
+app.listen(3000, () => console.log("BBS server running on https://burnatino.onrender.com"));

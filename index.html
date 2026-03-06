@@ -79,6 +79,68 @@ function renderBoard() {
 
 renderBoard();
 </script>
+    // ------------------ Firebase konfigurācija ------------------------
+const firebaseConfig = {
+    apiKey: "AIzaSyAvLZ358Gn4S0sDVN39Ol7efUTlitAo4hQ",
+    authDomain: "degosas-gramatas.firebaseapp.com",
+    databaseURL: "https://degosas-gramatas-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "degosas-gramatas",
+    storageBucket: "degosas-gramatas.firebasestorage.app",
+    messagingSenderId: "684051096592",
+    appId: "1:684051096592:web:cf04b2669fad5e0bf95695"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// HTML escape
+function escapeHtml(s){
+    return s.replaceAll('&','&amp;')
+            .replaceAll('<','&lt;')
+            .replaceAll('>','&gt;');
+}
+
+// ---------- Saglabāt ziņu Firebase ----------
+document.getElementById("postForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const content = document.getElementById("content").value.trim();
+    if (!content) return;
+
+    const safe = escapeHtml(content);
+
+    firebase.database().ref("messages").push({
+        text: safe,
+        time: new Date().toLocaleString()
+    });
+
+    document.getElementById("content").value = "";
+});
+
+// ---------- Ielādēt ziņas reāllaikā ----------
+firebase.database().ref("messages").on("value", (snapshot) => {
+    const data = snapshot.val();
+    const board = document.getElementById("messageBoard");
+
+    if (!data) {
+        board.innerHTML = "<p style='color:#0f0'>Nav nevienas ziņas...</p>";
+        return;
+    }
+
+    const entries = Object.values(data);
+
+    board.innerHTML = entries.map(msg => `
+        <div style="border:1px solid #0f0;padding:10px;margin-bottom:10px;">
+            <div style="white-space:pre-wrap;color:#0f0;">${msg.text}</div>
+            <div style="color:#090;font-size:12px;margin-top:5px;">${msg.time}</div>
+        </div>
+    `).join('');
+});
+</script>
+
+</body>
+</html>
+
 
 
 

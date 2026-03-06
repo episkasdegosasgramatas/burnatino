@@ -123,31 +123,20 @@ firebase.database().ref("messages").on("value", (snapshot) => {
     const board = document.getElementById("messageBoard");
 
     if (!data) {
-        board.innerHTML = "<p style='color:#000'>Nav nevienas ziņas...</p>";
+        board.innerHTML = "<p style='color:#0f0'>Nav nevienas ziņas...</p>";
         return;
     }
 
     const entries = Object.values(data);
 
     board.innerHTML = entries.map(msg => `
-        <div style="border:1px solid #000;padding:10px;margin-bottom:10px;">
-            <div style="white-space:pre-wrap;color:#000;">${msg.text}</div>
-            <div style="color:#000;font-size:12px;margin-top:5px;">${msg.time}</div>
+        <div style="border:1px solid #0f0;padding:10px;margin-bottom:10px;">
+            <div style="white-space:pre-wrap;color:#0f0;">${msg.text}</div>
+            <div style="color:#090;font-size:12px;margin-top:5px;">${msg.time}</div>
         </div>
     `).join('');
 });
 </script>
-
-</body>
-</html>
-
-
-
-
-
-
-
-
 
 
 

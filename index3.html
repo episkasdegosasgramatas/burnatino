@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="utf-8">
+<title>Burn Book — Online BBS</title>
+<style>
+body{background:#000;color:#0f0;font-family:monospace;font-size:16px;margin:0}
+header{border-bottom:1px solid #0f0;padding:10px}
+textarea{width:100%;height:120px;background:#000;color:#0f0;border:1px solid #0f0}
+button{background:#000;color:#0f0;border:1px solid #0f0;padding:5px 10px;margin-top:10px;cursor:pointer}
+#messageBoard{margin-top:25px}
+</style>
+</head>
+
+<body>
+
+<header>
+<pre>
+██████╗ ██████╗ ███████╗ ██████╗ ██████╗ ███████╗
+██╔══██╗██╔══██╗██╔════╝ ██╔══██╗██╔══██╗██╔════╝
+██████╔╝██████╔╝█████╗   ██║   ██║██████╔╝█████╗
+██╔═══╝ ██╔══██╗██╔══╝   ██║   ██║██╔══██╗██╔══╝
+██║     ██║  ██║███████╗ ██████╔╝██║  ██║███████╗
+╚═╝     ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
+</pre>
+<div>** ANONĪMAIS TIEŠSAISTES BBS TERMINĀLIS **</div>
+</header>
+
+<main style="padding:15px;">
+<p>Laipni lūgts! Visi ieraksti ir anonīmi un redzami visām ierīcēm.</p>
+
+<div style="margin-top:20px;border:1px solid #0f0;padding:10px;">
+<div>[POST A MESSAGE]</div>
+<form id="postForm">
+<textarea id="content" placeholder="Ierakstiet ziņu..."></textarea>
+<button type="submit">POST</button>
+</form>
+</div>
+
+<div id="messageBoard"></div>
+</main>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
+
+<script>
+// ------------------ Firebase konfigurācija ------------------------
+const firebaseConfig = {
+    apiKey: "AIzaSyAvLZ358Gn4S0sDVN39Ol7efUTlitAo4hQ",
+    authDomain: "degosas-gramatas.firebaseapp.com",
+    databaseURL: "https://degosas-gramatas-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "degosas-gramatas",
+    storageBucket: "degosas-gramatas.firebasestorage.app",
+    messagingSenderId: "684051096592",
+    appId: "1:684051096592:web:cf04b2669fad5e0bf95695"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// HTML escape
+function escapeHtml(s){
+    return s.replaceAll('&','&amp;')
+            .replaceAll('<','&lt;')
+            .replaceAll('>','&gt;');
+}
+
+// ---------- Saglabāt ziņu Firebase ----------
+document.getElementById("postForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const content = document.getElementById("content").value.trim();
+    if (!content) return;
+
+    const safe = escapeHtml(content);
+
+    firebase.database().ref("messages").push({
+        text: safe,
+        time: new Date().toLocaleString()
+    });
+
+    document.getElementById("content").value = "";
+});
+
+// ---------- Ielādēt ziņas reāllaikā ----------
+firebase.database().ref("messages").on("value", (snapshot) => {
+    const data = snapshot.val();
+    const board = document.getElementById("messageBoard");
+
+    if (!data) {
+        board.innerHTML = "<p style='color:#0f0'>Nav nevienas ziņas...</p>";
+        return;
+    }
+
+    const entries = Object.values(data);
+
+    board.innerHTML = entries.map(msg => `
+        <div style="border:1px solid #0f0;padding:10px;margin-bottom:10px;">
+            <div style="white-space:pre-wrap;color:#0f0;">${msg.text}</div>
+            <div style="color:#090;font-size:12px;margin-top:5px;">${msg.time}</div>
+        </div>
+    `).join('');
+});
+</script>
+
+</body>
+</html>
